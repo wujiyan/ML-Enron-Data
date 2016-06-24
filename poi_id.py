@@ -96,7 +96,7 @@ def scaler(data, feature_num):
             min_value = min(f_1[f_1.isnull() == False])
             max_value = max(f_1[f_1.isnull() == False])
             if j_1 == "NaN":
-                list1.append("dd")
+                list1.append("NaN")
             else:
                 new_val = (j_1-min_value)/(max_value-min_value)
                 list1.append(new_val)
