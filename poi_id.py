@@ -218,13 +218,9 @@ features_list_sim2 = ["poi", 'salary','deferral_payments','deferred_income','dir
 #get pure data and poi labels
 features_data_sim, labels_data_sim = change_format(mydata, features_list_sim2)
 
-#scale data for selecting features
-features_data_scl = scaler(features_data_sim, len(features_list_sim2)-1)
-
 #replacing NaN with median
 imp = Imputer(missing_values='NaN', strategy='median', axis=0)
 features_data_scl1 = imp.fit_transform(features_data_sim)
-features_data_scl2 = imp.fit_transform(features_data_scl)
 
 #split data into train and test set for non-scaled data.
 features_train, features_test, labels_train, labels_test = \
@@ -240,12 +236,17 @@ for i in range(len(clf.feature_importances_)):
         
 #split data into train and test set for scaled data.
 features_train, features_test, labels_train, labels_test = \
-cross_validation.train_test_split(features_data_scl2, labels_data_sim, test_size=0.3, random_state = 170,stratify = labels_data_sim )
+cross_validation.train_test_split(features_data_sim, labels_data_sim, test_size=0.3, random_state = 170,stratify = labels_data_sim )
 
+features_train_scl = scaler(features_train, len(features_list_sim2)-1)
+features_data_scl2 = imp.fit_transform(features_data_scl)
 #select best features: selectkbest 
 best_data= select_best_features(features_data_scl2, labels_data_sim, features_list_sim2)
 print("show features by selectkbest score:")
 print(list(best_data))
+
+features_train, features_test, labels_train, labels_test = \
+cross_validation.train_test_split(features_data_scl1, labels_data_sim, test_size=0.3, random_state = 170,stratify = labels_data_sim )
 
 #replacing NaN with median in non-scaled data
 imp = Imputer(missing_values='NaN', strategy='median', axis=0)
@@ -380,5 +381,3 @@ data_dict = mydata
 pickle.dump(clf, open("my_classifier.pkl", "w") )
 pickle.dump(data_dict, open("my_dataset.pkl", "w") )
 pickle.dump(features, open("my_feature_list.pkl", "w") )
-
-
