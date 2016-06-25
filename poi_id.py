@@ -167,18 +167,6 @@ scatter_plot(mydata_df1, "salary",
              "bonus","salary_vs_bonus2.png", color = mydata_df1['poi'])
 print("scatter plot: salary vs bonus, has been done")
 
-#plot scatter plot: total payments vs expenses
-#mydata_df_new is the dataframe only used to explore without "Lay Kenneth"
-mydata_df_new = mydata_df1.drop("LAY KENNETH L")
-scatter_plot(mydata_df_new, "total_payments",
-             "expenses","total_payments_vs_expenses.png", color = mydata_df_new['poi'])
-print("scatter plot: total_payments_vs_expenses, has been done")
-
-#plot scatter plot: to_messages vs from_messages
-scatter_plot(mydata_df1, "to_messages",
-             "from_messages","to_messages_vs_from_messages.png", color = mydata_df1['poi'])
-print("scatter plot: to_messages_vs_from_messages, has been done")
-
 #add new features, fraction of sending to poi and fraction of receiving from poi
 mydata = create_feature(mydata, "from_this_person_to_poi",\
                         "from_messages","fraction_to_poi")
@@ -215,9 +203,10 @@ features_list_sim2 = ["poi", 'salary','deferral_payments','deferred_income','dir
                  'shared_receipt_with_poi','total_payments',
                  'total_stock_value']
 
-#get pure data and poi labels
+#get pure data and poi labels from mydata
 features_data_sim, labels_data_sim = change_format(mydata, features_list_sim2)
 
+#-----------Rank Features: DecisionTree method---------------------------------
 #replacing NaN with median
 imp = Imputer(missing_values='NaN', strategy='median', axis=0)
 features_data_scl1 = imp.fit_transform(features_data_sim)
@@ -234,6 +223,7 @@ for i in range(len(clf.feature_importances_)):
     if clf.feature_importances_[i] > .00005:
         print "{}:{}".format(features_list_sim2[i+1],clf.feature_importances_[i] )
         
+#------------Rank Features: SelectKBest method--------------------------------- 
 #split data into train and test set for scaled data.
 features_train, features_test, labels_train, labels_test = \
 cross_validation.train_test_split(features_data_sim, labels_data_sim, test_size=0.3, random_state = 170,stratify = labels_data_sim )
@@ -246,6 +236,7 @@ best_data= select_best_features(features_data_scl2, labels_data_sim, features_li
 print("show features by selectkbest score:")
 print(list(best_data))
 
+#--------------Starts to train--------------------------------------------------
 #refresh the 4 dataset with non-scaled data.
 features_train, features_test, labels_train, labels_test = \
 cross_validation.train_test_split(features_data_scl1, labels_data_sim, test_size=0.3, random_state = 170,stratify = labels_data_sim )
@@ -257,17 +248,11 @@ features_data_scl2 = imp.fit_transform(features_data_sim)
 #features I selected
 features = ['poi','fraction_to_poi','exercised_stock_options','deferred_income','shared_receipt_with_poi']
 
-clf1 = RandomForestClassifier(random_state = 50,min_samples_split=8)
 clf2 = GaussianNB()
-clf3 = tree.DecisionTreeClassifier(random_state = 6,min_samples_split = 12)
 
 #print out report
-print("Random Forest Report")
-print(report(clf1,features_train, features_test, labels_train, labels_test))
 print("Gaussian Naive Base Report")
 print(report(clf2,features_train, features_test, labels_train, labels_test))
-print("Decision Tree Report")
-print(report(clf3,features_train, features_test, labels_train, labels_test))
 
 ### dump your classifier, dataset and features_list so
 ### anyone can run/check your results
