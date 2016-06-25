@@ -137,6 +137,7 @@ mydata = rawdata
 
 #transfer data from dictionary to data frame.
 #mydata_df is the dataframe transformed from original dataset
+# and is only used to export follwing values
 mydata_df = pd.DataFrame.from_dict(data = mydata, orient = 'index')
 #exploration
 print("Show the list of column names:")
