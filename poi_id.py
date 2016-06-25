@@ -156,7 +156,6 @@ scatter_plot(mydata_df, "salary",
 #mydata_df1 is the dataframe transformed from dataset without "TOTAL"
 mydata.pop('TOTAL')
 mydata_df1 = pd.DataFrame.from_dict(data = mydata, orient = 'index')
-#mydata_df1 = mydata_df.drop("TOTAL")
 scatter_plot(mydata_df1, "salary",
              "bonus","salary_vs_bonus2.png", color = mydata_df1['poi'])
 print("scatter plot: salary vs bonus, has been done")
@@ -235,11 +234,12 @@ print(list(best_data))
 #--------------Starts to train--------------------------------------------------
 #refresh the 4 dataset with non-scaled data.
 features_train, features_test, labels_train, labels_test = \
-cross_validation.train_test_split(features_data_scl1, labels_data_sim, test_size=0.3, random_state = 170,stratify = labels_data_sim )
+cross_validation.train_test_split(features_data_sim, labels_data_sim, test_size=0.3, random_state = 170,stratify = labels_data_sim )
 
 #replacing NaN with median in non-scaled data
 imp = Imputer(missing_values='NaN', strategy='median', axis=0)
-features_data_scl2 = imp.fit_transform(features_data_sim)
+features_train = imp.fit_transform(features_train)
+features_test = imp.fit_transform(features_test)
 
 #features I selected
 features = ['poi','fraction_to_poi','exercised_stock_options','deferred_income','shared_receipt_with_poi']
