@@ -83,11 +83,11 @@ def change_format(data, features):
 def scaler(data, feature_num):
     #input: original data(list)
     #output: new data(same format)
-    f = pd.DataFrame(features_data)
+    f = pd.DataFrame(data)
     i = 0
     j = 0
     list2 = []
-    while j < len(features_data):
+    while j < len(data):
         h_1 = f.iloc[j]
         list1 = []
         i = 0
@@ -230,9 +230,9 @@ cross_validation.train_test_split(features_data_sim, labels_data_sim, test_size=
 #then scaled training data
 features_train_scl = scaler(features_train, len(features_list_sim2)-1)
 #then fill NaNs with median
-features_data_scl2 = imp.fit_transform(features_data_scl)
+features_train_scl2 = imp.fit_transform(features_train_scl)
 #select best features: selectkbest 
-best_data= select_best_features(features_data_scl2, labels_data_sim, features_list_sim2)
+best_data= select_best_features(features_train_scl2, labels_train, features_list_sim2)
 print("show features by selectkbest score:")
 print(list(best_data))
 
