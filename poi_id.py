@@ -13,7 +13,6 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 from sklearn.metrics import precision_score
 from sklearn.metrics import recall_score
-import sklearn.pipeline
 from sklearn.preprocessing import Imputer
 
 #define a function to make scatter plot
@@ -124,14 +123,8 @@ def report(clf, features_train, features_test, labels_train, labels_test):
     ##input: 
     # clf: classifier you set
     ##output: accuracy, recall, precision and f1 score you have got.
-    steps = [('classifier', clf)]
-
-    pipeline = sklearn.pipeline.Pipeline(steps)
-
-    pipeline.fit(features_train, labels_train)
-
-    y_prediction = pipeline.predict( features_test )
-
+    clf = clf.fit(features_train, labels_train)
+    y_prediction = clf.predict(features_test )
     report = sklearn.metrics.classification_report( labels_test, y_prediction )
 
     return report
@@ -173,7 +166,8 @@ mydata = create_feature(mydata, "from_this_person_to_poi",\
 mydata = create_feature(mydata, "from_poi_to_this_person",\
                         "to_messages", "fraction_from_poi")
 print("features have been added")
-#mydata is now a dataset without "TOTAL" row and having two more columns
+#mydata is now a dataset without "TOTAL" row and having two more columns.
+#this is the last change of mydata.
 
 #plot scatter plot: fraction to poi vs fraction from poi
 #mydata_df2 is only used to plot this graph
@@ -207,13 +201,14 @@ features_list_sim2 = ["poi", 'salary','deferral_payments','deferred_income','dir
 features_data_sim, labels_data_sim = change_format(mydata, features_list_sim2)
 
 #-----------Rank Features: DecisionTree method---------------------------------
-#replacing NaN with median
-imp = Imputer(missing_values='NaN', strategy='median', axis=0)
-features_data_scl1 = imp.fit_transform(features_data_sim)
 
 #split data into train and test set for non-scaled data.
 features_train, features_test, labels_train, labels_test = \
-cross_validation.train_test_split(features_data_scl1, labels_data_sim, test_size=0.3, random_state = 170,stratify = labels_data_sim )
+cross_validation.train_test_split(features_data_sim, labels_data_sim, test_size=0.3, random_state = 170,stratify = labels_data_sim )
+
+#replacing NaN with median
+imp = Imputer(missing_values='NaN', strategy='median', axis=0)
+features_train = imp.fit_transform(features_train)
 
 #select best features: decisiontree
 clf = tree.DecisionTreeClassifier(min_samples_split=5)
@@ -228,11 +223,11 @@ for i in range(len(clf.feature_importances_)):
 features_train, features_test, labels_train, labels_test = \
 cross_validation.train_test_split(features_data_sim, labels_data_sim, test_size=0.3, random_state = 170,stratify = labels_data_sim )
 #then scaled training data
-features_train_scl = scaler(features_train, len(features_list_sim2)-1)
+features_train = scaler(features_train, len(features_list_sim2)-1)
 #then fill NaNs with median
-features_train_scl2 = imp.fit_transform(features_train_scl)
+features_train = imp.fit_transform(features_train)
 #select best features: selectkbest 
-best_data= select_best_features(features_train_scl2, labels_train, features_list_sim2)
+best_data= select_best_features(features_train, labels_train, features_list_sim2)
 print("show features by selectkbest score:")
 print(list(best_data))
 
