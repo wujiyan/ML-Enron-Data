@@ -77,7 +77,6 @@ def change_format(data, features):
             temp_list.append(float(value))
         final_list.append(np.array(temp_list))
     return np.array(final_list), np.array(label_list)
-
 #define a function to scale value. In this function, NaN will remained NaN
 #other numeric value will distributed between 0 and 1 according to minmaxscaler. 
 def scaler(data, feature_num):
@@ -136,6 +135,27 @@ def report(clf, features_train, features_test, labels_train, labels_test):
 
     return report
 
+#define a function to tranform array data into dictionary
+def array_to_dict(data, feature_list, feature_data)
+    ggdata = {}
+    j = 0
+    for names in data.keys():
+        i = 0
+        single = {}
+        for i in range(len(feature_list)):
+        if i == 0:
+            single['poi'] = labels_data_sim[j]
+            #if labels_data_sim[j] == 0:
+                #single['poi'] = False
+            #else:
+                #single['poi'] = True
+        else:
+            f = features_list[i]
+            single[f] = feature_data[j][i-1]
+        i = i+1
+    ggdata[names] = single
+    j = j + 1
+    return ggdata
 
 #read dataset from local
 with open("final_project_dataset.pkl", "r") as data_file:
@@ -205,7 +225,16 @@ missing_number_df = pd.DataFrame.from_dict(data = missing_number, orient = 'inde
 print("show the number of missing values:")
 print(missing_number_df)
 
-#set up a feature list.
+#set up feature list. include all first
+#this is the original features
+features_list = ["poi", 'salary','deferral_payments','deferred_income','director_fees',
+                 'exercised_stock_options','expenses',
+                 'fraction_from_poi','fraction_to_poi','from_messages',
+                 'from_poi_to_this_person','from_this_person_to_poi',
+                 'loan_advances','long_term_incentive','other',
+                 'restricted_stock','restricted_stock_deferred',
+                 'shared_receipt_with_poi','to_messages','total_payments',
+                 'total_stock_value']
 #this is the simplified features. How they were selected are explained in pdf report.
 features_list_sim2 = ["poi", 'salary','deferral_payments','deferred_income','director_fees',
                  'exercised_stock_options','expenses',
@@ -214,7 +243,6 @@ features_list_sim2 = ["poi", 'salary','deferral_payments','deferred_income','dir
                  'restricted_stock','restricted_stock_deferred',
                  'shared_receipt_with_poi','total_payments',
                  'total_stock_value']
-
 #get pure data and poi labels
 features_data_sim, labels_data_sim = change_format(mydata, features_list_sim2)
 
@@ -237,16 +265,14 @@ for i in range(len(clf.feature_importances_)):
 #split data into train and test set for scaled data.
 features_train, features_test, labels_train, labels_test = \
 cross_validation.train_test_split(features_data_sim, labels_data_sim, test_size=0.3, random_state = 170,stratify = labels_data_sim )
-#then scaled training data
+
 features_train_scl = scaler(features_train, len(features_list_sim2)-1)
-#then fill NaNs with median
 features_data_scl2 = imp.fit_transform(features_data_scl)
 #select best features: selectkbest 
 best_data= select_best_features(features_data_scl2, labels_data_sim, features_list_sim2)
 print("show features by selectkbest score:")
 print(list(best_data))
 
-#refresh the 4 dataset with non-scaled data.
 features_train, features_test, labels_train, labels_test = \
 cross_validation.train_test_split(features_data_scl1, labels_data_sim, test_size=0.3, random_state = 170,stratify = labels_data_sim )
 
@@ -273,6 +299,108 @@ print("Gaussian Naive Base Report")
 print(report(clf2,features_train, features_test, labels_train, labels_test))
 print("Decision Tree Report")
 print(report(clf3,features_train, features_test, labels_train, labels_test))
+
+#Given selected features, complete labels and feature extraction, processing
+#PCA, for the following classification.
+#features = ["fraction_to_poi", "exercised_stock_options","poi"]
+#def clf_prepare(data, features):
+#    feature, labels = change_format(data, features)
+#    scaler = MinMaxScaler()
+#    feature_scl = scaler.fit_transform(feature)
+#    pca = PCA(n_components = len(features)-1)
+#    scl = pca.fit_transform(feature_scl)
+#    scores = pca.explained_variance_ratio_
+#    return scl, labels, scores
+#feature_scl, labels, scores = clf_prepare(mydata, features)
+
+#split samples into training group and test group
+#features_train, features_test, labels_train, labels_test = \
+#cross_validation.train_test_split(feature_scl, labels, test_size=0.3, random_state = 1)
+
+#deploy machine learning
+#define a function, returning accuracy, precision and recall rate
+#def ml_basic(clf, features_train, features_test, labels_train, labels_test):
+#    clf.fit(features_train, labels_train)
+#    pred = clf.predict(features_test)
+#    score = clf.score(features_test, labels_test)
+#    precision = precision_score(labels_test, pred)
+#    recall = recall_score(labels_test, pred)
+#    return score, precision, recall
+
+#def ml_deploy(features_train, features_test, labels_train, labels_test):
+#    ml_result = {}
+#    tem1 = {}
+#    tem2 = {}
+#    tem3 = {}
+#    tem4 = {}
+#    #decision tree
+#    clf1 = tree.DecisionTreeClassifier(random_state = 13)
+#    accuracy, precision, recall = ml_basic(clf1,features_train, features_test, labels_train, labels_test)
+##    tem1["accuracy"] = accuracy
+ #   tem1["precision"] = precision
+#   tem1["recall"] = recall
+#    ml_result['decision_tree'] = tem1
+#    #gaussian naive base
+#    clf2 = GaussianNB()
+#    accuracy, precision, recall = \
+#              ml_basic(clf2,features_train, features_test, labels_train, labels_test)
+#    tem2["accuracy"] = accuracy
+#    tem2["precision"] = precision
+#    tem2["recall"] = recall
+#    ml_result['gaussianNB'] = tem2
+#    #random forest
+#    clf3 =  RandomForestClassifier(random_state = 10)
+#    accuracy, precision, recall = \
+#              ml_basic(clf3,features_train, features_test, labels_train, labels_test)
+#    tem3["accuracy"] = accuracy
+#    tem3["precision"] = precision
+#    tem3["recall"] = recall
+#    ml_result['random_forest'] = tem3
+#    #support vector machine
+#    clf4 = SVC()
+#    accuracy, precision, recall = \
+#              ml_basic(clf4,features_train, features_test, labels_train, labels_test)
+#    tem4["accuracy"] = accuracy
+#    tem4["precision"] = precision
+#    tem4["recall"] = recall
+#    ml_result['svm'] = tem4
+#    
+#    return ml_result
+
+#ml_result = ml_deploy(features_train, features_test, labels_train, labels_test)
+
+#test another group of features
+#features = ["fraction_to_poi", "total_payments","poi"]
+#feature_scl, labels, scores = clf_prepare(mydata, features)
+#features_train, features_test, labels_train, labels_test = \
+#cross_validation.train_test_split(feature_scl, labels, test_size=0.3, random_state = 1)
+#ml_result = ml_deploy(features_train, features_test, labels_train, labels_test)
+
+#test another group of features
+#features = ["fraction_to_poi", "total_payments","total_stock_value","poi"]
+#feature_scl, labels, scores = clf_prepare(mydata, features)
+#features_train, features_test, labels_train, labels_test = \
+#cross_validation.train_test_split(feature_scl, labels, test_size=0.3, random_state = 1)
+#ml_result = ml_deploy(features_train, features_test, labels_train, labels_test)
+
+#test another group of features
+#features = ["fraction_to_poi", "salary","poi"]
+#feature_scl, labels, scores = clf_prepare(mydata, features)
+##features_train, features_test, labels_train, labels_test = \
+#cross_validation.train_test_split(feature_scl, labels, test_size=0.3, random_state = 1)
+#ml_result = ml_deploy(features_train, features_test, labels_train, labels_test)
+##ml_result_df = pd.DataFrame.from_dict(data = ml_result, orient = 'index')
+#print("features selected")
+#print(features)
+#print("show metrics")
+#print(ml_result_df)
+#test another group of features
+#features = ["fraction_to_poi", "salary","shared_receipt_with_poi","poi"]
+#feature_scl, labels, scores = clf_prepare(mydata, features)
+#features_train, features_test, labels_train, labels_test = \
+#cross_validation.train_test_split(feature_scl, labels, test_size=0.3, random_state = 1)
+#ml_result = ml_deploy(features_train, features_test, labels_train, labels_test)
+
 
 ### dump your classifier, dataset and features_list so
 ### anyone can run/check your results
