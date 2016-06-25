@@ -261,11 +261,6 @@ clf1 = RandomForestClassifier(random_state = 50,min_samples_split=8)
 clf2 = GaussianNB()
 clf3 = tree.DecisionTreeClassifier(random_state = 6,min_samples_split = 12)
 
-#get pure data and poi labels
-#feature, labels = change_format(mydata, features)
-#scale the data
-#features_scl = scaler(features, len(features)-1)
-
 #print out report
 print("Random Forest Report")
 print(report(clf1,features_train, features_test, labels_train, labels_test))
